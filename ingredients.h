@@ -3,10 +3,9 @@
 
 #define NUM_INGREDIENTS 37
 #define NUM_CATEGORIES 9
-#define NUM_MODIFIERS 27
+#define NUM_MODIFIERS 28
 
 #include <string>
-#include <algorithm>
 #include "colorconstants.h"
 
 // list of ingredients, for ease of accesibility
@@ -86,6 +85,7 @@ enum Modifier {
     CURSED,
     BLESSED,
     AGED,
+    SPOILED,
     FERMENTED,
     SALTED,
     SWEETENED,
@@ -116,6 +116,7 @@ const std::string PrefixTable[] {
     "Cursed ",
     "Blessed ",
     "Aged ",
+    "Spoiled ",
     "Fermented ",
     "Salted ",
     "Sweetened ",

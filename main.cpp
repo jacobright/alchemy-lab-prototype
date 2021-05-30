@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include "ingredients.h"
 #include "recipes.h"
 #include "colorconstants.h"
@@ -27,16 +28,17 @@ void printCommandError(std::string cmd, std::string properCmd) {
     std::cout << TEXT_YELLOW_BRIGHT << "Improper Usage of Command: " << cmd << "\nProper Usage: " << properCmd << TEXT_RESET << "\n";
 }
 
-std::vector<Ingredient> getIngredientSelection() {
+std::vector<int> getIngredientSelection() {
     inventory.printInventory();
     std::cout << "Select bag slots: ";
     std::string selection;
     getline(std::cin, selection);
     std::vector<std::string> stringSelection = tokenize(selection);
-    std::vector<Ingredient> bagSelection;
+    std::vector<int> bagSelection;
 
     for (std::string stringSel : stringSelection) {
-        bagSelection.push_back(IngredientsTable[stoi(stringSel)]);
+        // bagSelection.push_back(inventory.getItem(stoi(stringSel))->getIngredient());
+        bagSelection.push_back(stoi(stringSel));
     }
 
     return bagSelection;
@@ -60,6 +62,49 @@ int brewHandler() {
         }
         else if (brewCmd[0] == "bag") { 
             inventory.printInventory();
+        }
+        
+        // separate
+        else if (brewCmd[0] == "separate") {
+            std::vector<int> indexSel = getIngredientSelection();
+            std::vector<Ingredient> sel;
+
+            for (int val : indexSel) {
+                sel.push_back(inventory.getItem(val)->getIngredient());
+            }
+
+            std::vector<Ingredients> ingredientsToGive = getMatchingRecipe(sel, SEPARATE);
+
+            // give the result if found valid recipe
+            if (ingredientsToGive.size() > 0) {
+                std::cout << TEXT_GREEN_BRIGHT << "Separated " << TEXT_RESET;
+
+                int amtResult = 0;
+                for (int i : indexSel) {
+                    printIngredientName(inventory.getItem(i)->getIngredient());
+                    std::cout << " [x" << inventory.getItem(i)->getAmount() << "] ";
+
+                    amtResult = std::max(amtResult, inventory.getItem(i)->getAmount());
+                    inventory.removeItem(i);
+                }
+
+                std::cout << TEXT_GREEN_BRIGHT << "into:\n" << TEXT_RESET;
+
+                for (Ingredients i : ingredientsToGive) {
+                    printIngredientName(IngredientsTable[i]);
+                    std::cout << "\n";
+                    inventory.giveItem(i, amtResult);
+                }
+                std::cout << "\n";
+            }
+            else {
+                std::cout << TEXT_RED_BRIGHT << "Failed to separate: " << TEXT_RESET;
+                for (Ingredient i : sel) {
+                    printIngredientName(i);
+                    std::cout << " ";
+                }
+                std::cout << "\n";
+            }
         }
 
     }
@@ -158,12 +203,6 @@ int commandHandler(std::string rawInput) {
     else if (command[0] == "brew") {
         std::cout << "Entering Brewing Mode\n";
         brewHandler();
-    }
-        
-    // separate
-    else if (command[0] == "separate") {
-        std::vector<Ingredient> sel = getIngredientSelection();
-        getMatchingRecipe(sel, SEPARATE);
     }
 
     // error

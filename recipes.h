@@ -25,7 +25,7 @@ struct Recipe {
 const Recipe RecipeTable[] {
     {{HONEY, FAIRY_DUST}, {}, {FAIRY_HONEY}, COMBINE},
     {{ROSE}, {}, {ROSE_PETALS, ROSE_THORNS}, SEPARATE},
-    {{HONEY, FRESH_WATER}, {{FERMENTED}}, {MEAD}, COMBINE},
+    {{HONEY, FRESH_WATER}, {{FERMENTED},{}}, {MEAD}, COMBINE},
 };
 
 struct Transformation {
@@ -65,28 +65,48 @@ int ingredientMatchesTransformation(Ingredient ingredient, Transformation transf
     return (nameMatches && categoryMatches && modifiersMatch) ? (int)transform.outIngredientType : -1;
 }
 
+bool ingredientsContainModifiers(std::vector<std::vector<Modifier>> m, std::vector<Ingredient> i) {
+    if (m.size() == 0)
+        return true;
+
+    // for (Ingredient ri : r) {
+    //     for (Modifier rm : ri.modifiers) {
+    //         for (Ingredient ii : i) {
+    //             if (std::find(ii.modifiers.begin(), ii.modifiers.end(), rm) == ii.modifiers.end()) {
+
+    //             }
+    //         }
+    //     }
+    // }
+
+    return false;
+}
+
 bool doAllIngredientsMatch(std::vector<Ingredient> i1, std::vector<Ingredient> i2) {
     // check both to make sure they contain ALL of eachother's ingredients
+    // std::cout << "recipe ingredients: ";
     for (Ingredient i : i1) {
+        // std::cout << i.name << " ";
         if(std::find(i2.begin(), i2.end(), i) == i2.end()) {
+            // std::cout << "\n";
             return false;
         }
     }
+    // std::cout << "\ninput ingredients: ";
     for (Ingredient i : i2) {
+        // std::cout << i.name << " ";
         if(std::find(i1.begin(), i1.end(), i) == i1.end()) {
+            // std::cout << "\n";
             return false;
         }
     }
+    // std::cout << "\n";
 
     return true;
 }
 
 // returns the output ingredients vector from the matching recipe
 std::vector<Ingredients> getMatchingRecipe(std::vector<Ingredient> ingredients, Action action) {
-    bool inIngredientsMatch = false;
-    bool inModifiersMatch = false;
-    bool actionMatches = false;
-
 
     for (Recipe r : RecipeTable) { // for every recipe
         // convert to Ingredient vector instead of Ingredients vector
@@ -96,13 +116,19 @@ std::vector<Ingredients> getMatchingRecipe(std::vector<Ingredient> ingredients, 
         }
 
         if (r.action == action) { // check if action matches
+        // std::cout << "ACTION MATCH\n";
             if (doAllIngredientsMatch(recipeIngredients, ingredients)) { // check if ingredient types match
+                // std::cout << "INGREDIENT MATCH\n";
                 // check if modifiers exist in the  match
+                if (ingredientsContainModifiers(r.inModifiers, ingredients)) {
+                    // std::cout << "MODIFIER MATCH\n";
+                    return r.outIngredients;
+                }
             }
         }
     }
 
-    return (inIngredientsMatch && inModifiersMatch && actionMatches) ? RecipeTable[0].outIngredients : std::vector<Ingredients>{NULL_INGREDIENT};
+    return std::vector<Ingredients>{};
 }
 
 
