@@ -1,9 +1,9 @@
 #ifndef INGREDIENTS_H
 #define INGREDIENTS_H
 
-#define NUM_INGREDIENTS 37
+#define NUM_INGREDIENTS 39
 #define NUM_CATEGORIES 9
-#define NUM_MODIFIERS 28
+#define NUM_MODIFIERS 29
 
 #include <string>
 #include "colorconstants.h"
@@ -14,6 +14,7 @@ enum Ingredients {
     FRESH_WATER,
     SALT_WATER,
     HOLY_WATER,
+    ROSE_WATER,
 
     ROCK_SALT,
     SEA_SALT,
@@ -32,13 +33,14 @@ enum Ingredients {
     LAVENDER,
     BLACKTHORN,
     GRAPES,
+    GRAPE_JUICE,
     ASH,
 
     HONEY,
     CRYSTALLIZED_HONEY,
-    WINE, // potion instead maybe?
-    MEAD, // potion instead maybe?
-    FAIRY_MEAD, // potion instead maybe?
+    WINE,
+    MEAD,
+    FAIRY_MEAD,
     
     QUICKSILVER,
     GOLD,
@@ -89,15 +91,16 @@ enum Modifier {
     FERMENTED,
     SALTED,
     SWEETENED,
-    SPICY,
+    HONEYED,
+    SPICY, // potentially unnecessary
     DIRTY,
-    POISONED,
+    POISONED, // potentially unnecessary
     TARNISHED,
     RUSTED,
     WET,
-    DRACONIC,
-    FAIRY,
-    MANMADE,
+    DRACONIC, // potentially unnecessary
+    FAIRY, // potentially unnecessary
+    MANMADE, // potentially unnecessary
 };
 
 const std::string PrefixTable[] {
@@ -120,6 +123,7 @@ const std::string PrefixTable[] {
     "Fermented ",
     "Salted ",
     "Sweetened ",
+    "Honeyed ",
     "Spicy ",
     "Dirty ",
     "Poisonous ",
@@ -128,11 +132,7 @@ const std::string PrefixTable[] {
     "Wet ",
     "Draconic ",
     "Faerie ",
-    "Man-Made ",
-    "[goodsmell] ",
-    "[badsmell] ",
-    "[goodtaste] ",
-    "[badtaste] ",
+    "Man-Made "
 };
 
 // contains all information that such an item would contain
@@ -142,6 +142,7 @@ struct Ingredient {
     std::string color;
     Category category;
     std::vector<Modifier> modifiers;
+    int age;
 
     bool operator==(const Ingredient &i) const {
         return i.name == name;
@@ -179,6 +180,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE,
         .category = NULL_CATEGORY,
         .modifiers = {NULL_MODIFIER},
+        .age = 0,
     },
 
     [FRESH_WATER] =
@@ -188,6 +190,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_BLUE_BRIGHT,
         .category = WATERS,
         .modifiers = {LIQUID},
+        .age = 0,
     },
     
     [SALT_WATER] =
@@ -197,15 +200,27 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_BLUE_BRIGHT,
         .category = WATERS,
         .modifiers = {LIQUID, SALTED},
+        .age = 0,
     },
     
     [HOLY_WATER] =
     {
         .name = "Holy Water",
         .desc = "Water that has been blessed",
-        .color = TEXT_CYAN,
+        .color = TEXT_BLUE_BRIGHT,
         .category = WATERS,
         .modifiers = {LIQUID, BLESSED},
+        .age = 0,
+    },
+    
+    [ROSE_WATER] =
+    {
+        .name = "Rose Water",
+        .desc = "Rose petals steeped in water",
+        .color = TEXT_MAGENTA,
+        .category = WATERS,
+        .modifiers = {LIQUID},
+        .age = 0,
     },
 
     [ROCK_SALT] = 
@@ -215,6 +230,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE_BRIGHT,
         .category = MINERALS,
         .modifiers = {SALTED},
+        .age = 0,
     },
 
     [SEA_SALT] = 
@@ -224,6 +240,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE_BRIGHT,
         .category = MINERALS,
         .modifiers = {SALTED, CRUSHED},
+        .age = 0,
     },
 
     [SUGAR] = 
@@ -233,6 +250,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE_BRIGHT,
         .category = SPICES,
         .modifiers = {SWEETENED, POWDERED},
+        .age = 0,
     },
 
     [PEPPERCORN] = 
@@ -242,6 +260,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_GREEN,
         .category = SPICES,
         .modifiers = {SPICY},
+        .age = 0,
     },
 
     [AMETHYST] = 
@@ -251,6 +270,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_MAGENTA_BRIGHT,
         .category = MINERALS,
         .modifiers = {},
+        .age = 0,
     },
 
     [DIAMOND] = 
@@ -260,6 +280,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_CYAN_BRIGHT,
         .category = MINERALS,
         .modifiers = {},
+        .age = 0,
     },
 
     [AMBER] = 
@@ -269,6 +290,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_YELLOW_BRIGHT,
         .category = MINERALS,
         .modifiers = {},
+        .age = 0,
     },
 
     [QUARTZ] = 
@@ -278,6 +300,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE_BRIGHT,
         .category = MINERALS,
         .modifiers = {},
+        .age = 0,
     },
 
     [GARLIC] = 
@@ -287,6 +310,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_GREEN,
         .category = PLANTS,
         .modifiers = {SPICY},
+        .age = 0,
     },
 
     [ROSE] = 
@@ -296,6 +320,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_RED_BRIGHT,
         .category = PLANTS,
         .modifiers = {},
+        .age = 0,
     },
 
     [ROSE_PETALS] = 
@@ -305,6 +330,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_RED_BRIGHT,
         .category = PLANTS,
         .modifiers = {},
+        .age = 0,
     },
 
     [ROSE_THORNS] = 
@@ -314,6 +340,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_RED_BRIGHT,
         .category = PLANTS,
         .modifiers = {},
+        .age = 0,
     },
 
     [LAVENDER] = 
@@ -323,6 +350,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_MAGENTA_BRIGHT,
         .category = PLANTS,
         .modifiers = {},
+        .age = 0,
     },
 
     [BLACKTHORN] = 
@@ -332,6 +360,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_YELLOW,
         .category = PLANTS,
         .modifiers = {},
+        .age = 0,
     },
 
     [GRAPES] = 
@@ -341,6 +370,17 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_RED,
         .category = PLANTS,
         .modifiers = {},
+        .age = 0,
+    },
+
+    [GRAPE_JUICE] = 
+    {
+        .name = "Grape Juice",
+        .desc = "Sweet, purple grape juice",
+        .color = TEXT_RED,
+        .category = PLANTS,
+        .modifiers = {LIQUID},
+        .age = 0,
     },
 
     [ASH] = 
@@ -350,6 +390,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_BLACK_BRIGHT,
         .category = PLANTS,
         .modifiers = {POWDERED},
+        .age = 0,
     },
 
     [HONEY] = 
@@ -358,7 +399,8 @@ const Ingredient IngredientsTable[] = {
         .desc = "Sweet and sticky",
         .color = TEXT_YELLOW_BRIGHT,
         .category = ANIMALS,
-        .modifiers = {LIQUID, SWEETENED},
+        .modifiers = {LIQUID, SWEETENED, HONEYED},
+        .age = 0,
     },
 
     [CRYSTALLIZED_HONEY] = 
@@ -367,7 +409,8 @@ const Ingredient IngredientsTable[] = {
         .desc = "Hardened honey",
         .color = TEXT_YELLOW_BRIGHT,
         .category = ANIMALS,
-        .modifiers = {SWEETENED},
+        .modifiers = {SWEETENED, HONEYED},
+        .age = 0,
     },
 
     [WINE] = 
@@ -377,6 +420,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_RED,
         .category = PLANTS,
         .modifiers = {LIQUID, FERMENTED},
+        .age = 0,
     },
 
     [MEAD] = 
@@ -384,8 +428,9 @@ const Ingredient IngredientsTable[] = {
         .name = "Mead",
         .desc = "A sweet, golden drink",
         .color = TEXT_YELLOW_BRIGHT,
-        .category = ANIMALS,
+        .category = WATERS,
         .modifiers = {LIQUID, FERMENTED, SWEETENED},
+        .age = 0,
     },
 
     [FAIRY_MEAD] = 
@@ -395,6 +440,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_CYAN_BRIGHT,
         .category = ANIMALS_MYTHICAL,
         .modifiers = {FAIRY, LIQUID, SWEETENED, FERMENTED},
+        .age = 0,
     },
 
     [QUICKSILVER] = 
@@ -404,6 +450,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE_BRIGHT,
         .category = METALS,
         .modifiers = {LIQUID, POISONED},
+        .age = 0,
     },
 
     [GOLD] = 
@@ -413,6 +460,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_YELLOW_BRIGHT,
         .category = METALS,
         .modifiers = {},
+        .age = 0,
     },
 
     [SILVER] = 
@@ -422,6 +470,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE_BRIGHT,
         .category = METALS,
         .modifiers = {},
+        .age = 0,
     },
 
     [IRON] = 
@@ -431,6 +480,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_BLACK_BRIGHT,
         .category = METALS,
         .modifiers = {},
+        .age = 0,
     },
 
     [LEAD] = 
@@ -440,6 +490,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE,
         .category = METALS,
         .modifiers = {SWEETENED, POISONED},
+        .age = 0,
     },
 
     [COPPER] = 
@@ -449,6 +500,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_YELLOW,
         .category = METALS,
         .modifiers = {},
+        .age = 0,
     },
 
     [STEEL] = 
@@ -458,6 +510,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_WHITE,
         .category = METALS,
         .modifiers = {MANMADE},
+        .age = 0,
     },
 
     [RUST] = 
@@ -467,6 +520,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_RED,
         .category = METALS,
         .modifiers = {RUSTED},
+        .age = 0,
     },
 
     [DRAGON_FIRE] = 
@@ -476,6 +530,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_RED_BRIGHT,
         .category = ARCANE,
         .modifiers = {DRACONIC, HEATED},
+        .age = 0,
     },
 
     [FAIRY_DUST] = 
@@ -485,6 +540,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_CYAN_BRIGHT,
         .category = ANIMALS_MYTHICAL,
         .modifiers = {FAIRY, POWDERED},
+        .age = 0,
     },
 
     [FAIRY_HONEY] = 
@@ -493,7 +549,8 @@ const Ingredient IngredientsTable[] = {
         .desc = "A glowing blue honey, almost too sweet to eat",
         .color = TEXT_CYAN_BRIGHT,
         .category = ANIMALS_MYTHICAL,
-        .modifiers = {FAIRY, SWEETENED, LIQUID},
+        .modifiers = {FAIRY, SWEETENED, LIQUID, HONEYED},
+        .age = 0,
     },
 
     [FIRE_SALT] = 
@@ -503,6 +560,7 @@ const Ingredient IngredientsTable[] = {
         .color = TEXT_RED_BRIGHT,
         .category = MINERALS,
         .modifiers = {SALTED, SPICY, CRUSHED, HEATED},
+        .age = 0,
     },
 };
 

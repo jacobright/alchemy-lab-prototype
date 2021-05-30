@@ -7,8 +7,6 @@ class Item {
     private:
         Ingredient ingredientItem;
         int amount;
-        int age;
-        int temperature;
 
     public:
         Item() {}
@@ -29,20 +27,27 @@ class Item {
             amount = newAmt;
         }
 
+        void decrementAmount(int amt = 1) {
+            amount -= amt;
+        }
+
         int getAmount() {
             return amount;
         }
 
-        int getAge() {
-            return age;
-        }
-
-        void incrementAge() {
-            ++age;
+        void incrementAge(int days = 1) {
+            this->ingredientItem.age += days;
         }
 
         void addModifierToItem(Modifier newModifier) {
             ingredientItem.modifiers.push_back(newModifier);
+        }
+
+        void removeModifierFromItem(Modifier oldModifier) {
+            for (int i = 0; i < ingredientItem.modifiers.size(); i++) {
+                if (ingredientItem.modifiers[i] == oldModifier)
+                    ingredientItem.modifiers.erase(ingredientItem.modifiers.begin()+i);
+            }
         }
 
         Ingredient getIngredient() {

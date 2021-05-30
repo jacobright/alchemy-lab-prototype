@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <climits>
 #include "ingredients.h"
 #include "recipes.h"
 #include "colorconstants.h"
@@ -44,7 +45,56 @@ std::vector<int> getIngredientSelection() {
     return bagSelection;
 }
 
-int brewHandler() {
+bool doCraft(Action action, std::string actionDescriptor) {
+    
+    // TURN THIS INTO ACTION FUNCTION
+    std::vector<int> indexSel = getIngredientSelection();
+    std::vector<Ingredient> sel;
+
+    for (int val : indexSel) {
+        sel.push_back(inventory.getItem(val)->getIngredient());
+    }
+
+    std::vector<Ingredients> ingredientsToGive = getMatchingRecipe(sel, action);
+
+    // give the result if found valid recipe
+    if (ingredientsToGive.size() > 0) {
+        std::cout << TEXT_GREEN_BRIGHT << actionDescriptor << " " << TEXT_RESET;
+
+        int amtResult = INT_MAX;
+        for (int i : indexSel) {
+            printIngredientName(inventory.getItem(i)->getIngredient());
+            std::cout << " [x" << inventory.getItem(i)->getAmount() << "] ";
+
+            amtResult = std::min(amtResult, inventory.getItem(i)->getAmount());
+            inventory.getItem(i)->decrementAmount();
+            if (inventory.getItem(i)->getAmount() <= 0)
+                inventory.removeItem(i);
+        }
+
+        std::cout << TEXT_GREEN_BRIGHT << "into:\n" << TEXT_RESET;
+
+        for (Ingredients i : ingredientsToGive) {
+            printIngredientName(IngredientsTable[i]);
+            std::cout << "\n";
+            inventory.giveItem(i, amtResult);
+        }
+        std::cout << "\n";
+    }
+    else {
+        std::cout << TEXT_RED_BRIGHT << actionDescriptor << " FAILED: " << TEXT_RESET;
+        for (Ingredient i : sel) {
+            printIngredientName(i);
+            std::cout << " ";
+        }
+        std::cout << "\n";
+        return false;
+    }
+
+    return true;
+}
+
+int craftHandler() {
     std::string brewInput;
     while(true) {
         // the command input loop
@@ -58,7 +108,7 @@ int brewHandler() {
         if (brewCmd[0] == "back" || brewCmd[0] == "exit" || brewCmd[0] == "x")
             break;
         else if (brewCmd[0] == "help") {
-            std::cout << "TECHNICAL COMMANDS: help, back, bag\n";
+            std::cout << "TECHNICAL COMMANDS: help, back, bag\nCRAFTING COMMANDS: separate, combine\n";
         }
         else if (brewCmd[0] == "bag") { 
             inventory.printInventory();
@@ -66,50 +116,22 @@ int brewHandler() {
         
         // separate
         else if (brewCmd[0] == "separate") {
-            std::vector<int> indexSel = getIngredientSelection();
-            std::vector<Ingredient> sel;
-
-            for (int val : indexSel) {
-                sel.push_back(inventory.getItem(val)->getIngredient());
-            }
-
-            std::vector<Ingredients> ingredientsToGive = getMatchingRecipe(sel, SEPARATE);
-
-            // give the result if found valid recipe
-            if (ingredientsToGive.size() > 0) {
-                std::cout << TEXT_GREEN_BRIGHT << "Separated " << TEXT_RESET;
-
-                int amtResult = 0;
-                for (int i : indexSel) {
-                    printIngredientName(inventory.getItem(i)->getIngredient());
-                    std::cout << " [x" << inventory.getItem(i)->getAmount() << "] ";
-
-                    amtResult = std::max(amtResult, inventory.getItem(i)->getAmount());
-                    inventory.removeItem(i);
-                }
-
-                std::cout << TEXT_GREEN_BRIGHT << "into:\n" << TEXT_RESET;
-
-                for (Ingredients i : ingredientsToGive) {
-                    printIngredientName(IngredientsTable[i]);
-                    std::cout << "\n";
-                    inventory.giveItem(i, amtResult);
-                }
-                std::cout << "\n";
-            }
-            else {
-                std::cout << TEXT_RED_BRIGHT << "Failed to separate: " << TEXT_RESET;
-                for (Ingredient i : sel) {
-                    printIngredientName(i);
-                    std::cout << " ";
-                }
-                std::cout << "\n";
-            }
+            doCraft(SEPARATE, "SEPARATED");
         }
+
+        // combine
+        else if (brewCmd[0] == "combine") {
+            doCraft(COMBINE, "COMBINED");
+        }
+
+        // heat
+        // else if (brewCmd[0] == "heat") {
+        //     doCraft(HEAT, "HEATED");
+        // }
 
     }
 
-    std::cout << "Exiting Brewing...\n";
+    std::cout << "Exiting Crafting...\n";
     return 0;
 }
 
@@ -127,7 +149,7 @@ int commandHandler(std::string rawInput) {
 
     // help
     else if (command[0] == "help") {
-        std::cout << "COMMANDS:\nTERMINAL: exit, info, help \nINVENTORY: bag, give, mod, move\nPOTIONS: brew\n";
+        std::cout << "COMMANDS:\nTERMINAL: exit, info, help \nINVENTORY: bag, give, mod, move\nCRAFTING & BREWING: craft, brew\n";
     }
     
     // info {item/mod/all}
@@ -199,10 +221,60 @@ int commandHandler(std::string rawInput) {
         }
     }
 
-    // brew
+    // craft
+    else if (command[0] == "craft") {
+        std::cout << "Entering Crafting Mode\n";
+        craftHandler();
+    }
+
+    // brew (this is specifically for potions)
     else if (command[0] == "brew") {
-        std::cout << "Entering Brewing Mode\n";
-        brewHandler();
+        std::cout << "Feature incomplete\n";
+    }
+
+    // BELOW ARE THE ACTUAL MODIFICATION COMMANDS (wait, crush, heat, cool, curse, bless, )
+    // SALTING, SWEETENING, HONEYING, and WETTENING will all happen in crafting (COMBINE) 
+    // wait
+    else if (command[0] == "wait") {
+        if (command.size() == 1 || command[1] == "1") {
+            std::cout << "- Waiting 1 Day -\n";
+            for(int i = 0; i < NUM_INVENTORY_SLOTS; i++) {
+                inventory.getItem(i)->incrementAge();
+            }
+        }
+        else if (command.size() == 2) {
+            std::cout << "- Waiting " << command[1] << " Days -\n";
+            for(int i = 0; i < NUM_INVENTORY_SLOTS; i++) {
+                inventory.getItem(i)->incrementAge(std::stoi(command[1]));
+            }
+        }
+        else
+            printCommandError(rawInput, "wait [DAYS]");
+    }
+    // crush
+    else if (command[0] == "crush") {
+        if (command.size() != 2) {
+            printCommandError(rawInput, "crush [SLOT]");
+        }
+        else {
+            Item* item = inventory.getItem(std::stoi(command[1]));
+
+            if (!item->getIngredient().hasModifier(LIQUID) && 
+                !item->getIngredient().hasModifier(POWDERED)) {
+
+                std::cout << "Crushing "; printIngredientName(item->getIngredient()); std::cout << "\n";
+                if (item->getIngredient().hasModifier(CRUSHED)) {
+                    item->removeModifierFromItem(CRUSHED);
+                    item->addModifierToItem(POWDERED);
+                }
+                else {
+                    item->addModifierToItem(CRUSHED);
+                }
+            }
+            else {
+                std::cout << TEXT_RED_BRIGHT << "You can't crush that." << TEXT_RESET << "\n";
+            }
+        }
     }
 
     // error
@@ -220,7 +292,9 @@ int main () {
     inventory.addItemToSlot(HOLY_WATER, 5, 1); // adds 1 holy water item to slot 5
     inventory.addItemToSlot(FRESH_WATER, 1, 1); // adds 1 fresh water item to slot 1
     inventory.getItem(1)->addModifierToItem(SALTED); // modifies the fresh water item to be salted, so it turns into salt water
-
+    inventory.giveItem(HONEY,1); // gives 1 honey in first open slot
+    inventory.addItemToSlot(FRESH_WATER, 3, 1); // gives 1 honey in first open slot
+    inventory.giveItem(ROSE,2);
 
     std::string commandInput;
     while(true) {
@@ -234,7 +308,12 @@ int main () {
                     int transformationResult = ingredientMatchesTransformation(inventory.getItem(i)->getIngredient(), t);
                     if (transformationResult >= 0) { // if a successful transformation is found
                         // update item i to the output item from the transformation
-                        inventory.addItemToSlot((Ingredients)transformationResult, i, inventory.getItem(i)->getAmount()); 
+                        if (transformationResult > 0)
+                            inventory.addItemToSlot((Ingredients)transformationResult, i, inventory.getItem(i)->getAmount());
+
+                        for (Modifier m : t.outModifiers) {
+                            inventory.getItem(i)->addModifierToItem(m);
+                        }
                     }
                 }
 
@@ -242,6 +321,8 @@ int main () {
                 if (inventory.getItem(i)->getAmount() <= 0) {
                     inventory.removeItem(i);
                 }
+
+                // if (inventory.getItem(i)->getIngredient().age)
             }
         }
         
